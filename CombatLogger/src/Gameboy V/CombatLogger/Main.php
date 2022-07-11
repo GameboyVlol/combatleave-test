@@ -43,37 +43,42 @@ class Main extends PluginBase implements Listener{
 
     private function setTime(Player $player){
         $msg = "[CombatLogger] Logging out now will cause you to die.\nPlease wait ".$this->interval." seconds.";
-        if(isset($this->players[$player->getName()])){
-            if((time() - $this->players[$player->getName()]) > $this->interval){
+        
+        if(isset($this->players[$player->getUniqueId()->toString()])){
+            $expiry = $this->players[$player->getUniqueId()->toString()];
+            
+            if((time() - $expiry) > $this->interval){
                 $player->sendMessage($msg);
             }
-            if(isset($this->tasks[$player->getName()])){
-                $this->getServer()->getScheduler()->cancelTask($this->tasks[$player->getName()]);
+            
+            if(isset($this->tasks[$player->getUniqueId()->toString()])){
+                $this->getServer()->getScheduler()->cancelTask($this->tasks[$player->getUniqueId()->toString()]);
             }
-            $this->tasks[$player->getName()] = $this->getServer()->getScheduler()->scheduleRepeatingTask(new TimeMsg($this, $player), 20)->getTaskId();
+            
+            $this->tasks[$player->getUniqueId()->toString()] = $this->getServer()->getScheduler()->scheduleRepeatingTask(new TimeMsg($this, $player), 20)->getTaskId();
         }else{
             $player->sendMessage($msg);
-            $this->tasks[$player->getName()] = $this->getServer()->getScheduler()->scheduleRepeatingTask(new TimeMsg($this, $player), 20)->getTaskId();
+            $this->tasks[$player->getUniqueId()->toString()] = $this->getServer()->getScheduler()->scheduleRepeatingTask(new TimeMsg($this, $player), 20)->getTaskId();
         }
-        $this->players[$player->getName()] = time();
+        $this->players[$player->getUniqueId()->toString()] = time();
     }
 
     
     public function PlayerDeathEvent(PlayerDeathEvent $event){
-        if(isset($this->players[$event->getEntity()->getName()])){
-            unset($this->players[$event->getEntity()->getName()]);
-            if(isset($this->tasks[$event->getEntity()->getName()])) $this->getServer()->getScheduler()->cancelTask($this->tasks[$event->getEntity()->getName()]);unset($this->tasks[$event->getEntity()->getName()]);
+        if(isset($this->players[$event->getEntity()->getUniqueId()->toString()])){
+            unset($this->players[$event->getEntity()->getUniqueId()->toString()]);
+            if(isset($this->tasks[$event->getEntity()->getUniqueId()->toString()])) $this->getServer()->getScheduler()->cancelTask($this->tasks[$event->getEntity()->getUniqueId()->toString()]);unset($this->tasks[$event->getEntity()->getUniqueId()->toString()]);
         }
     }
   
     public function PlayerQuitEvent(PlayerQuitEvent $event){
-        if(isset($this->players[$event->getPlayer()->getName()])){
+        if(isset($this->players[$event->getPlayer()->getUniqueId()->toString()])){
             $player = $event->getPlayer();
-            if((time() - $this->players[$player->getName()]) < $this->interval){
+            if((time() - $this->players[$player->getUniqueId()->toString()]) < $this->interval){
                 $player->kill();
             }
-            unset($this->players[$player->getName()]);
-            if(isset($this->tasks[$player->getName()])) $this->getServer()->getScheduler()->cancelTask($this->tasks[$player->getName()]);unset($this->tasks[$player->getName()]);
+            unset($this->players[$player->getUniqueId()->toString()]);
+            if(isset($this->tasks[$player->getUniqueId()->toString()])) $this->getServer()->getScheduler()->cancelTask($this->tasks[$player->getUniqueId()->toString()]);unset($this->tasks[$player->getUniqueId()->toString()]);
         }
     }
 }
