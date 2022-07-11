@@ -1,1 +1,6 @@
-
+name: CombatLogger
+version: 1.0.0
+api: [1.0.0]
+author: Gameboy V
+main: Gameboy V\CombatLogger\Main
+description: a random plugin for STCraft that stops people logging out
