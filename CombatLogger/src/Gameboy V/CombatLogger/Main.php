@@ -4,7 +4,6 @@ namespace Gameboy V\CombatLogger;
 
 use pocketmine\event\Listener;
 use pocketmine\plugin\PluginBase;
-use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -32,13 +31,13 @@ class Main extends PluginBase implements Listener{
         $this->getServer()->getLogger()->info("CombatLogger disabled");
     }
   
-    public function EntityDamageEvent(EntityDamageEvent $event){
-        if($event instanceof EntityDamageByEntityEvent){
-            if($event->getDamager() instanceof Player){
-                foreach(array($event->getDamager(),$event->getEntity()) as $players){
-                    $this->setTime($players);
-                }
-            }
+    public function onEntityDamageByEntity(EntityDamageByEntityEvent $event){
+        $damager = $event->getDamager();
+        $entity = $event->getEntity();
+        
+        if($damager instanceof Player && $entity instanceof Player){
+           $this->setTime($damager);
+           $this->setTime($entity);
         }
     }
 
